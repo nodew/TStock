@@ -10,7 +10,7 @@ open FSharp.Core
 open FSharp.Data
 open FSharp.Json
 
-type Code = string
+type Code = Code of string
 
 [<JsonUnion(Mode=UnionMode.CaseKeyAsFieldValue, CaseKeyField="type", CaseValueField="code")>]
 type StockCode =
@@ -31,8 +31,8 @@ type StockData = {
     Open: float
     High: float
     Low: float
-    Updown: float
-    UpdownRate: float
+    UpDown: float
+    UpDownRate: float
     ExchangeRatio: float
 }
 
@@ -47,20 +47,18 @@ module HexunStock =
     let internal callback = "c"
 
     let getCodeString = function
-        | SH code -> "sse" + code
-        | SZ code -> "szse" + code
-        | HK code -> "HKEX" + code
-        | NSDQ code -> "NASDAQ" + code
+        | SH (Code code) -> "sse" + code
+        | SZ (Code code) -> "szse" + code
+        | HK (Code code) -> "HKEX" + code
+        | NSDQ (Code code) -> "NASDAQ" + code
 
     let getRegion = function
-        | SZ _ -> "a"
-        | SH _ -> "a"
+        | SZ _ | SH _ -> "a"
         | HK _ -> "hk"
         | NSDQ _ -> "usa"
 
     let getHostPrefix = function
-        | SZ _ -> "webstock.quote"
-        | SH _ -> "webstock.quote"
+        | SZ _ | SH _ -> "webstock.quote"
         | HK _ -> "webhkstock.quote"
         | NSDQ _ -> "webusstock"
 
@@ -79,8 +77,8 @@ module HexunStock =
                     Open = s.[1]
                     High = s.[2]
                     Low = s.[3]
-                    Updown = s.[4]
-                    UpdownRate = s.[5]
+                    UpDown = s.[4]
+                    UpDownRate = s.[5]
                     ExchangeRatio = s.[6]
                 }
         with
@@ -113,11 +111,11 @@ let main argv =
 
     let content = File.ReadAllText(filename)
 
-    let follows = Json.deserialize<Stock[]>(content)
+    let stocks = Json.deserialize<Stock[]>(content)
 
     printfn "|%-20s|%10s|%10s|%10s|%10s|%10s|%10s|" "Name" "Price" "Open" "Low" "High" "UpDown" "UpDownRate"
 
-    follows
+    stocks
     |> Seq.map HexunStock.getStockData
     |> Async.Parallel
     |> Async.RunSynchronously
@@ -126,7 +124,7 @@ let main argv =
             match result with
             | result when result.Data = None -> printfn "|%-20s|%10s|%10s|%10s|%10s|%10s|%10s|" result.Stock.Name "_" "_" "_" "_" "_" "_"
             | { StockResult.Stock = stock; StockResult.Data = Some data } ->
-                printfn "|%-20s|%10.2f|%10.2f|%10.2f|%10.2f|%10.2f|%10.2f%%|" stock.Name data.Price data.Open data.Low data.High data.Updown data.UpdownRate
+                printfn "|%-20s|%10.2f|%10.2f|%10.2f|%10.2f|%10.2f|%10.2f%%|" stock.Name data.Price data.Open data.Low data.High data.UpDown data.UpDownRate
             | _ -> ()
         )
     0
