@@ -1,0 +1,44 @@
+[
+    {
+        "name": "中国茅台",
+        "code": {
+            "type": "SH",
+            "code": "600519"
+        }
+    },
+    {
+        "name": "中国平安",
+        "code": {
+            "type": "SZ",
+            "code": "000001"
+        }
+    },
+    {
+        "name": "京东方",
+        "code": {
+            "type": "SZ",
+            "code": "000725"
+        }
+    },
+    {
+        "name": "中国有赞",
+        "code": {
+            "type": "HK",
+            "code": "08083"
+        }
+    },
+    {
+        "name": "腾讯控股",
+        "code": {
+            "type": "HK",
+            "code": "00700"
+        }
+    },
+    {
+        "name": "MSFT",
+        "code": {
+            "type": "NSDQ",
+            "code": "MSFT"
+        }
+    }
+]
