@@ -64,12 +64,14 @@ module HexunStock =
         | HK _ -> "webhkstock.quote"
         | NSDQ _ -> "webusstock"
 
-    let parseData (text: string) =
+    let parseData code (text: string) =
         try
             let valuePart = text.Split(":").[1]
-
+            let unit = match code with
+                        | HK _ -> 1000.0
+                        | _ -> 100.0
             valuePart.Substring(3, valuePart.Length - 10).Split(",")
-            |> Seq.map (float >> (fun x -> x / 100.0))
+            |> Seq.map (float >> (fun x -> x / unit))
             |> Seq.toArray
             |> fun s ->
                 Some {
@@ -93,7 +95,7 @@ module HexunStock =
             if resp.StatusCode > 300 then
                 return { Stock = stock; Data = None }
             else
-                let stockData = resp.Body.ToString() |> parseData
+                let stockData = resp.Body.ToString() |> parseData code
                 return { Stock = stock; Data = stockData }
         }
 
